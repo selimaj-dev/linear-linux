@@ -1,10 +1,10 @@
 {
   "name": "linear-linux",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Linux support for linear.app",
   "main": "index.js",
   "scripts": {
-    "start": "CHROME_DEVEL_SANDBOX=${CHROME_DEVEL_SANDBOX:-/opt/linear-linux-0.2.1/squashfs-root/chrome-sandbox} ELECTRON_DISABLE_SANDBOX=1 npx electron index.js",
+    "start": "CHROME_DEVEL_SANDBOX=${CHROME_DEVEL_SANDBOX:-/opt/linear-linux/squashfs-root/chrome-sandbox} ELECTRON_DISABLE_SANDBOX=1 npx electron index.js",
     "build": "npx electron-builder --linux AppImage deb"
   },
   "repository": {
