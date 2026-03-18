@@ -1,11 +1,11 @@
 {
   "name": "linear-linux",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Linux support for linear.app",
   "main": "index.js",
   "scripts": {
-    "start": "CHROME_DEVEL_SANDBOX=${CHROME_DEVEL_SANDBOX:-/opt/linear-linux-0.2.1/squashfs-root/chrome-sandbox} ELECTRON_DISABLE_SANDBOX=1 npx electron index.js",
-    "build": "electron-builder --linux AppImage deb"
+    "start": "CHROME_DEVEL_SANDBOX=${CHROME_DEVEL_SANDBOX:-/opt/linear-linux/squashfs-root/chrome-sandbox} ELECTRON_DISABLE_SANDBOX=1 npx electron index.js",
+    "build": "npx electron-builder --linux AppImage deb"
   },
   "repository": {
     "type": "git",
@@ -32,8 +32,7 @@
         "deb"
       ],
       "category": "Utility",
-      "icon": "assets/linear-app-icon.png",
-      "afterInstall": "build/after-install.sh"
+      "icon": "assets/linear-app-icon.png"
     },
     "extraResources": [
       {
@@ -43,7 +42,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^33.2.1",
+    "electron": "33.2.1",
     "electron-builder": "^25.1.8"
   }
 }

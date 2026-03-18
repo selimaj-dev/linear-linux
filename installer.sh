@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-VERSION="${VERSION:-0.2.2}"
+VERSION="${VERSION:-0.2.3}"
 APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/kleo-dev/linear-linux/releases/download/v${VERSION}/linear-linux-${VERSION}.AppImage}"
 INSTALL_ROOT="${INSTALL_ROOT:-/opt}"
 INSTALL_DIR="${INSTALL_ROOT}/linear-linux-${VERSION}"
@@ -63,4 +63,10 @@ sudo install -Dm644 "${ICON_SVG}" /usr/share/icons/hicolor/scalable/apps/linear.
 sudo install -Dm644 "${ICON_PNG}" /usr/share/icons/hicolor/512x512/apps/linear.png
 sudo gtk-update-icon-cache -f /usr/share/icons/hicolor || true
 
+echo "Configuring chrome sandbox"
+
+sudo chown root:root /opt/Linear/chrome-sandbox || true
+sudo chmod 4755 /opt/Linear/chrome-sandbox || true
+
 echo "Linear ${VERSION} installed. Launch with: ${WRAPPER_PATH}"
+
