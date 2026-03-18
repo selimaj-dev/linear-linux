@@ -27,4 +27,4 @@ Development:
 - `npm run build` produces an AppImage that bundles the Linear brand assets for the desktop icon.
 
 # Having an issue?
-Describe your issue [here](https://github.com/kleo-dev/linear-linux/issues)
+Describe your issue [here](https://github.com/selimaj-dev/linear-linux/issues)
