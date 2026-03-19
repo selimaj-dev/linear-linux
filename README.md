@@ -14,7 +14,9 @@ A linux port of <a href="https://linear.app/">linear.app</a>
 Requires `sudo` (for sandbox helper, desktop entry, and icons).
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/kleo-dev/linear-linux/refs/heads/master/installer.sh | bash
+git clone git@github.com:selimaj-dev/linear-linux.git
+cd linear-linux
+./installer.sh
 ```
 
 The installer:
