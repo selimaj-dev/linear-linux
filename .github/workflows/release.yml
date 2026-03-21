@@ -46,11 +46,23 @@ jobs:
           git push
           git push --tags
 
-      - name: Build artifacts
+      - name: Build x64 artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux AppImage deb --x64
+
+      - name: Collect x64 artifacts
         run: |
-          npm run build
+          mkdir -p dist-final
+          mv dist/*.AppImage dist/*.deb dist-final/ 2>/dev/null || true
+
+      - name: Build arm64 artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux AppImage deb --arm64
+
+      - name: Collect arm64 artifacts
+        run: mv dist/*.AppImage dist/*.deb dist-final/ 2>/dev/null || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -59,7 +71,4 @@ jobs:
           name: Linear v${{ steps.bump.outputs.version }}
           draft: false
           prerelease: false
-          files: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.rpm
+          files: dist-final/*
