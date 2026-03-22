@@ -22,7 +22,7 @@ cd linear-linux
 The installer:
 - Downloads the AppImage, extracts it under `/opt/linear-linux-<version>`, and wires up the `chrome-sandbox` helper correctly.
 - Installs a wrapper at `/usr/local/bin/linear`, a desktop entry, and the Linear icon into the system icon cache.
-- Accepts overrides: `VERSION=0.2.4 APPIMAGE_URL=<url> INSTALL_ROOT=/opt ./installer.sh`
+- Accepts overrides: `VERSION=0.2.5 APPIMAGE_URL=<url> INSTALL_ROOT=/opt ./installer.sh`
 
 Development:
 - `npm start` launches Electron with sandbox disabled for local runs (packaged builds use the proper setuid helper).

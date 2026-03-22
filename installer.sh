@@ -11,7 +11,7 @@ case "$ARCH" in
   *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
-VERSION="${VERSION:-0.2.4}"
+VERSION="${VERSION:-0.2.5}"
 APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/selimaj-dev/linear-linux/releases/download/v${VERSION}/linear-linux-${VERSION}-${ARCH}.AppImage}"
 INSTALL_ROOT="${INSTALL_ROOT:-/opt}"
 INSTALL_DIR="${INSTALL_ROOT}/linear-linux-${VERSION}"
