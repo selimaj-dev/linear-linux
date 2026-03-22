@@ -2,8 +2,17 @@
 
 set -euo pipefail
 
-VERSION="${VERSION:-0.2.4}"
-APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/selimaj-dev/linear-linux/releases/download/v${VERSION}/linear-linux-${VERSION}.AppImage}"
+ARCH=$(uname -m)
+
+# Normalize to electron-builder naming
+case "$ARCH" in
+  x86_64) ARCH="x64" ;;
+  aarch64 | arm64) ARCH="arm64" ;;
+  *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
+
+VERSION="${VERSION:-0.2.5}"
+APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/selimaj-dev/linear-linux/releases/download/v${VERSION}/linear-linux-${VERSION}-${ARCH}.AppImage}"
 INSTALL_ROOT="${INSTALL_ROOT:-/opt}"
 INSTALL_DIR="${INSTALL_ROOT}/linear-linux-${VERSION}"
 WRAPPER_PATH="/usr/local/bin/linear"
@@ -69,4 +78,3 @@ sudo chown root:root /opt/Linear/chrome-sandbox || true
 sudo chmod 4755 /opt/Linear/chrome-sandbox || true
 
 echo "Linear ${VERSION} installed. Launch with: ${WRAPPER_PATH}"
-
