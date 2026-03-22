@@ -3,19 +3,7 @@
 set -euo pipefail
 
 VERSION="${VERSION:-0.2.4}"
-
-# Detect host architecture and select the correct AppImage
-ARCH="$(uname -m)"
-case "${ARCH}" in
-  x86_64)  APPIMAGE_ARCH_SUFFIX="" ;;
-  aarch64) APPIMAGE_ARCH_SUFFIX="-arm64" ;;
-  *)
-    echo "Unsupported architecture: ${ARCH}. Supported: x86_64, aarch64" >&2
-    exit 1
-    ;;
-esac
-
-APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/selimaj-dev/linear-linux/releases/download/v${VERSION}/Linear-${VERSION}${APPIMAGE_ARCH_SUFFIX}.AppImage}"
+APPIMAGE_URL="${APPIMAGE_URL:-https://github.com/selimaj-dev/linear-linux/releases/download/v${VERSION}/linear-linux-${VERSION}.AppImage}"
 INSTALL_ROOT="${INSTALL_ROOT:-/opt}"
 INSTALL_DIR="${INSTALL_ROOT}/linear-linux-${VERSION}"
 WRAPPER_PATH="/usr/local/bin/linear"
@@ -75,7 +63,10 @@ sudo install -Dm644 "${ICON_SVG}" /usr/share/icons/hicolor/scalable/apps/linear.
 sudo install -Dm644 "${ICON_PNG}" /usr/share/icons/hicolor/512x512/apps/linear.png
 sudo gtk-update-icon-cache -f /usr/share/icons/hicolor || true
 
+echo "Configuring chrome sandbox"
 
+sudo chown root:root /opt/Linear/chrome-sandbox || true
+sudo chmod 4755 /opt/Linear/chrome-sandbox || true
 
 echo "Linear ${VERSION} installed. Launch with: ${WRAPPER_PATH}"
 
