@@ -64,19 +64,22 @@ jobs:
             dist/*.deb
             dist/*.rpm
 
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
       - name: Update flake.nix hashes
         env:
           VERSION: ${{ steps.bump.outputs.version }}
         run: |
-          X86_HASH=$(sha256sum dist/linear-linux-${VERSION}-x86_64.AppImage | awk '{print $1}')
-          ARM_HASH=$(sha256sum dist/linear-linux-${VERSION}-arm64.AppImage | awk '{print $1}')
-
-          X86_SRI="sha256-$(echo -n "$X86_HASH" | python3 -c "import sys,base64,binascii; print(base64.b64encode(binascii.unhexlify(sys.stdin.read())).decode())")"
-          ARM_SRI="sha256-$(echo -n "$ARM_HASH" | python3 -c "import sys,base64,binascii; print(base64.b64encode(binascii.unhexlify(sys.stdin.read())).decode())")"
+          X86_SRI=$(nix-hash --type sha256 --flat --sri dist/linear-linux-${VERSION}-x86_64.AppImage)
+          ARM_SRI=$(nix-hash --type sha256 --flat --sri dist/linear-linux-${VERSION}-arm64.AppImage)
 
           sed -i "s|version = \".*\";|version = \"${VERSION}\";|" flake.nix
           sed -i "s|hash = \"sha256-.*\"; # x86_64|hash = \"${X86_SRI}\"; # x86_64|" flake.nix
           sed -i "s|hash = \"sha256-.*\"; # aarch64|hash = \"${ARM_SRI}\"; # aarch64|" flake.nix
+
+          grep -q "${X86_SRI}" flake.nix || { echo "::error::Failed to update x86_64 hash"; exit 1; }
+          grep -q "${ARM_SRI}" flake.nix || { echo "::error::Failed to update aarch64 hash"; exit 1; }
 
       - name: Commit flake.nix update
         env:
