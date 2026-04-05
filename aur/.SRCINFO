@@ -1,0 +1,27 @@
+pkgbase = linear-linux-bin
+	pkgdesc = Unofficial Linux desktop client for Linear (linear.app)
+	pkgver = 0.2.5
+	pkgrel = 1
+	url = https://github.com/selimaj-dev/linear-linux
+	arch = x86_64
+	arch = aarch64
+	license = ISC
+	depends = gtk3
+	depends = nss
+	depends = alsa-lib
+	depends = libxtst
+	depends = libxss
+	depends = at-spi2-core
+	optdepends = libappindicator-gtk3: tray icon support
+	provides = linear-linux
+	conflicts = linear-linux
+	conflicts = linear-desktop-bin
+	conflicts = linear-desktop-git
+	options = !strip
+	options = !debug
+	source_x86_64 = linear-linux-0.2.5-x86_64.AppImage::https://github.com/selimaj-dev/linear-linux/releases/download/v0.2.5/linear-linux-0.2.5-x86_64.AppImage
+	sha256sums_x86_64 = SKIP
+	source_aarch64 = linear-linux-0.2.5-arm64.AppImage::https://github.com/selimaj-dev/linear-linux/releases/download/v0.2.5/linear-linux-0.2.5-arm64.AppImage
+	sha256sums_aarch64 = SKIP
+
+pkgname = linear-linux-bin
