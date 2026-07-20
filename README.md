@@ -1,3 +1,5 @@
+## ⚠️ ARCHIVED: PLEASE USE OTHER FORKS
+
 <p align="center">
 <img alt="GH-rel ver" src="icon.png" width="100px">
 <h1 align="center">Linear for linux</h1>
