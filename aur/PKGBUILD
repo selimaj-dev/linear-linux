@@ -1,0 +1,84 @@
+# Maintainer: Radu Ursache <https://github.com/rursache>
+pkgname=linear-linux-bin
+pkgver=0.2.5
+pkgrel=1
+pkgdesc="Unofficial Linux desktop client for Linear (linear.app)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/selimaj-dev/linear-linux"
+license=('ISC')
+depends=('gtk3' 'nss' 'alsa-lib' 'libxtst' 'libxss' 'at-spi2-core')
+optdepends=('libappindicator-gtk3: tray icon support')
+provides=('linear-linux')
+conflicts=('linear-linux' 'linear-desktop-bin' 'linear-desktop-git')
+options=('!strip' '!debug')
+
+_appimage_x86_64="linear-linux-${pkgver}-x86_64.AppImage"
+_appimage_aarch64="linear-linux-${pkgver}-arm64.AppImage"
+
+source_x86_64=("${_appimage_x86_64}::${url}/releases/download/v${pkgver}/${_appimage_x86_64}")
+source_aarch64=("${_appimage_aarch64}::${url}/releases/download/v${pkgver}/${_appimage_aarch64}")
+
+# Updated after each release by CI — see .github/workflows/aur-publish.yml
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+
+prepare() {
+    local _appimage
+    if [[ "$CARCH" == "x86_64" ]]; then
+        _appimage="${_appimage_x86_64}"
+    else
+        _appimage="${_appimage_aarch64}"
+    fi
+
+    chmod +x "${srcdir}/${_appimage}"
+    "${srcdir}/${_appimage}" --appimage-extract
+
+    # Fix permissions
+    chmod -R a+rX "${srcdir}/squashfs-root"
+}
+
+package() {
+    # Install app files
+    install -d "${pkgdir}/opt/${pkgname}"
+    cp -a "${srcdir}/squashfs-root/." "${pkgdir}/opt/${pkgname}/"
+
+    # Symlink executable
+    install -d "${pkgdir}/usr/bin"
+    ln -s "/opt/${pkgname}/AppRun" "${pkgdir}/usr/bin/linear-linux"
+
+    # Desktop entry
+    install -Dm644 /dev/stdin "${pkgdir}/usr/share/applications/linear-linux.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Linear
+Comment=Unofficial Linux desktop client for Linear
+Exec=linear-linux %U
+Icon=linear-linux
+Terminal=false
+Categories=Office;ProjectManagement;
+StartupWMClass=linear-linux
+MimeType=x-scheme-handler/linear;
+EOF
+
+    # Icons
+    for size in 16 32 48 64 128 256 512; do
+        if [[ -f "${srcdir}/squashfs-root/usr/share/icons/hicolor/${size}x${size}/apps/linear.png" ]]; then
+            install -Dm644 "${srcdir}/squashfs-root/usr/share/icons/hicolor/${size}x${size}/apps/linear.png" \
+                "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps/linear-linux.png"
+        fi
+    done
+
+    # Fallback: use the bundled icon from assets
+    if [[ -f "${srcdir}/squashfs-root/resources/assets/linear-app-icon.png" ]]; then
+        install -Dm644 "${srcdir}/squashfs-root/resources/assets/linear-app-icon.png" \
+            "${pkgdir}/usr/share/icons/hicolor/512x512/apps/linear-linux.png"
+    fi
+
+    # License
+    if [[ -f "${srcdir}/squashfs-root/LICENSE" ]]; then
+        install -Dm644 "${srcdir}/squashfs-root/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    fi
+
+    # Fix permissions on chrome-sandbox
+    chmod 4755 "${pkgdir}/opt/${pkgname}/chrome-sandbox" 2>/dev/null || true
+}

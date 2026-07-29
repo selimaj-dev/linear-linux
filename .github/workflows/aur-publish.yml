@@ -1,0 +1,83 @@
+name: Publish to AUR
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 0.2.5). Defaults to latest release."
+        required: false
+
+jobs:
+  aur-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Publishing version: ${VERSION}"
+
+      - name: Download release assets and compute checksums
+        id: checksums
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tmpdir=$(mktemp -d)
+
+          gh release download "v${VERSION}" \
+            --pattern "linear-linux-${VERSION}-x86_64.AppImage" \
+            --dir "${tmpdir}" || true
+
+          gh release download "v${VERSION}" \
+            --pattern "linear-linux-${VERSION}-arm64.AppImage" \
+            --dir "${tmpdir}" || true
+
+          if [[ -f "${tmpdir}/linear-linux-${VERSION}-x86_64.AppImage" ]]; then
+            SHA_X86=$(sha256sum "${tmpdir}/linear-linux-${VERSION}-x86_64.AppImage" | cut -d' ' -f1)
+          else
+            SHA_X86="SKIP"
+          fi
+
+          if [[ -f "${tmpdir}/linear-linux-${VERSION}-arm64.AppImage" ]]; then
+            SHA_ARM=$(sha256sum "${tmpdir}/linear-linux-${VERSION}-arm64.AppImage" | cut -d' ' -f1)
+          else
+            SHA_ARM="SKIP"
+          fi
+
+          echo "sha_x86=${SHA_X86}" >> "$GITHUB_OUTPUT"
+          echo "sha_arm=${SHA_ARM}" >> "$GITHUB_OUTPUT"
+          rm -rf "${tmpdir}"
+
+      - name: Update PKGBUILD with new version and checksums
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA_X86: ${{ steps.checksums.outputs.sha_x86 }}
+          SHA_ARM: ${{ steps.checksums.outputs.sha_arm }}
+        run: |
+          cd aur
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=('${SHA_X86}')/" PKGBUILD
+          sed -i "s/^sha256sums_aarch64=.*/sha256sums_aarch64=('${SHA_ARM}')/" PKGBUILD
+
+      - name: Publish to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v3.0.1
+        with:
+          pkgname: linear-linux-bin
+          pkgbuild: aur/PKGBUILD
+          commit_username: ${{ github.repository_owner }}
+          commit_email: ${{ github.repository_owner }}@users.noreply.github.com
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to ${{ steps.version.outputs.version }}"
+          force_push: true
